@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>La Odisea · Historia interactiva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Controles: arriba a la izquierda -->
+  <div class="controles">
+    <button id="btn-volver" class="btn">← Volver atrás</button>
+    <button id="btn-reset" class="btn">↺ Reiniciar historia</button>
+  </div>
+
+  <main class="pagina">
+    <div class="meandro" aria-hidden="true"></div>
+
+    <header class="cabecera">
+      <h1>La Odisea</h1>
+      <p class="subtitulo">Un regreso a Ítaca, a tu elección</p>
+    </header>
+
+    <section class="escena" aria-live="polite">
+      <p class="nivel" id="nivel"></p>
+
+      <!-- Imagen contextual cuadrada (400×400). Reemplazar src="img/pilos.jpg" por tu imagen. -->
+      <figure class="contexto" hidden>
+        <img id="imagen" src="img/pilos.jpg" alt="" hidden>
+        <div class="placeholder" id="placeholder">
+          <span>Espacio para imagen<br>400 × 400 px</span>
+        </div>
+        <figcaption id="pie"></figcaption>
+      </figure>
+
+      <div class="texto">
+        <h2 id="titulo"></h2>
+        <p id="descripcion"></p>
+      </div>
+
+      <div class="zona-decisiones">
+        <div class="decisiones" id="decisiones"></div>
+      </div>
+              
+
+    <div class="meandro" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    // Estructura no lineal: cada nodo tiene opciones que llevan a otros nodos.
+    const historia = {
+      inicio: {
+        nivel: 1,
+        titulo: "Troya ha caído",
+        texto: "Tras diez años de guerra, Odiseo zarpa de Troya rumbo a Ítaca, su hogar. Los dioses han trazado un camino largo y lleno de peligros, y las naves avanzan por la costa de Pilos con el viento a favor.",
+        imagen: "img/pilos.jpg",
+        pie: "Pilos, Mesenia (Grecia)",
+        opciones: [
+          { texto: "Atacar la ciudad de los cícones", a: "ataque" },
+          { texto: "Dejar que el viento los lleve a la tierra de los lotófagos", a: "loto" }
+        ]
+      },
+      ataque: {
+        nivel: 2,
+        titulo: "El saqueo de Ismaro",
+        texto: "Los hombres de Odiseo saquean la ciudad de Ismaro y se llevan vino y riquezas. Pero los cícones reúnen a sus guerreros y contraatacan al amanecer.",
+        opciones: [
+          { texto: "Huir hacia mar abierto", a: "eolo" },
+          { texto: "Refugiarse en una cueva de una isla cercana", a: "polifemo" }
+        ]
+      },
+      loto: {
+        nivel: 2,
+        titulo: "La tierra de los lotófagos",
+        texto: "Algunos hombres exploran la costa y prueban una flor de loto. Quien la prueba olvida el regreso y solo desea quedarse.",
+        opciones: [
+          { texto: "Arrastrar de vuelta a los hombres a la nave", a: "eolo" },
+          { texto: "Dejar que los hombres se queden en la isla", a: "olvido" }
+        ]
+      },
+      polifemo: {
+        nivel: 3,
+        titulo: "El cíclope Polifemo",
+        texto: "La cueva pertenece a Polifemo, un gigante de un solo ojo. Atrapado en su interior, Odiseo debe decidir cómo escapar de su furia.",
+        opciones: [
+          { texto: "Engañarlo: diré que mi nombre es Nadie", a: "ardid" },
+          { texto: "Enfrentarlo de frente", a: "fuerza" }
+        ]
+      },
+      eolo: {
+        nivel: 3,
+        titulo: "Los vientos de Eolo",
+        texto: "El rey Eolo les regala los vientos atados en un odre de cuero. Casi a la vista de Ítaca, los marineros abren el odre por curiosidad y los vientos los arrastran lejos.",
+        opciones: [
+          { texto: "Pedir ayuda a Circe", a: "circe" },
+          { texto: "Seguir a la deriva sin rumbo", a: "hades" }
+        ]
+      },
+      olvido: {
+        nivel: 3,
+        titulo: "El olvido de los lotos",
+        texto: "Los hombres que comieron el loto han perdido la memoria de su hogar. Odiseo, sin embargo, aún recuerda a Penélope y a Telémaco.",
+        opciones: [
+          { texto: "Volver a la nave con los que aún recuerdan", a: "circe" },
+          { texto: "Quedarse en la isla con ellos", a: "fin_olvido" }
+        ]
+      },
+      ardid: {
+        nivel: 4,
+        titulo: "«Nadie»",
+        texto: "Polifemo, ebrio, pregunta quién lo ha cegado y Odiseo responde: «Nadie». Cuando los pastores acuden, no entienden nada. Al amanecer, los hombres escapan aferrados al vientre de los carneros.",
+        opciones: [
+          { texto: "Huir bajo los carneros hacia la nave", a: "itaca" },
+          { texto: "Regresar a la cueva por el resto de la tripulación", a: "hades" }
+        ]
+      },
+      fuerza: {
+        nivel: 4,
+        titulo: "La piedra del cíclope",
+        texto: "Odiseo lanza una piedra y el cíclope ruge e invoca a su padre Poseidón. Pronto, la tormenta se levanta sobre el mar.",
+        opciones: [
+          { texto: "Lanzar una roca aún mayor", a: "hades" },
+          { texto: "Huir a nado hacia la costa", a: "hades" }
+        ]
+      },
+      circe: {
+        nivel: 4,
+        titulo: "La hechicera Circe",
+        texto: "Circe, hija del Sol, recibe a Odiseo en su isla y le revela el camino: antes de volver a casa debe descender al Hades para consultar al adivino Tiresias.",
+        opciones: [
+          { texto: "Pedirle a Circe que guíe la nave a Ítaca", a: "itaca" },
+          { texto: "Descender al Hades sin protección", a: "hades" }
+        ]
+      },
+      fin_olvido: {
+        nivel: 4,
+        titulo: "Un hogar olvidado",
+        texto: "Odiseo se queda en la isla de los lotófagos. Los años pasan sin que nadie recuerde Ítaca, y Penélope espera en vano.",
+        opciones: []
+      },
+      itaca: {
+        nivel: 5,
+        titulo: "El regreso a Ítaca",
+        texto: "Odiseo pisa la costa de Ítaca. Disfrazado de mendigo, espera el momento justo para reencontrarse con Penélope y Telémaco.",
+        opciones: []
+      },
+      hades: {
+        nivel: 5,
+        titulo: "Las sombras del Hades",
+        texto: "Ni la fortuna ni la astucia bastan. Las aguas se cierran sobre la nave y Odiseo queda perdido entre las sombras del Hades.",
+        opciones: []
+      }
+    };
+
+    const $ = id => document.getElementById(id);
+    let actual = "inicio";
+    let pila = [];
+
+    function mostrar(id) {
+      const n = historia[id];
+      $("nivel").textContent = `Nivel ${n.nivel} de 5`;
+      $("titulo").textContent = n.titulo;
+      $("descripcion").textContent = n.texto;
+
+      // Imagen contextual (solo en los nodos que la tengan)
+      const fig = document.querySelector(".contexto");
+      const img = $("imagen");
+      const ph = $("placeholder");
+      fig.hidden = !n.imagen;
+      if (n.imagen) {
+        img.src = n.imagen;
+        img.alt = n.titulo;
+        img.hidden = false;
+        ph.hidden = true;
+        $("pie").textContent = n.pie || "";
+      }
+      img.onerror = () => { img.hidden = true; ph.hidden = false; };
+
+      // Video solo en el inicio: al salir se oculta y se corta su reproducción
+      const frame = document.querySelector("#video iframe");
+      if (!frame.dataset.src) frame.dataset.src = frame.src;
+      const esInicio = id === "inicio";
+      $("video").hidden = !esInicio;
+      frame.src = esInicio ? frame.dataset.src : "about:blank";
+
+      // Decisiones
+      const cont = $("decisiones");
+      cont.innerHTML = "";
+      if (n.opciones.length === 0) {
+        const p = document.createElement("p");
+        p.className = "fin";
+        p.textContent = "— Fin del recorrido —";
+        cont.appendChild(p);
+      }
+      n.opciones.forEach(o => {
+        const b = document.createElement("button");
+        b.className = "btn-decision";
+        b.textContent = o.texto;
+        b.onclick = () => {
+          pila.push(actual);
+          actual = o.a;
+          mostrar(actual);
+        };
+        cont.appendChild(b);
+      });
+
+      $("btn-volver").disabled = pila.length === 0;
+    }
+
+    $("btn-volver").onclick = () => {
+      if (pila.length) {
+        actual = pila.pop();
+        mostrar(actual);
+      }
+    };
+
+    $("btn-reset").onclick = () => {
+      pila = [];
+      actual = "inicio";
+      mostrar(actual);
+    };
+
+    mostrar(actual);
+  </script>
+</body>
+</html>
